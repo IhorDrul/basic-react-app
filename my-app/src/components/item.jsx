@@ -1,16 +1,16 @@
-import React, {Component} from 'react'
+import React from 'react'
 
-export class Item extends React.Component {
+export class Item extends React.PureComponent {
   render() {
 
     const {data} = this.props
-    
+
     return (
       <div key={data.id} className={'post-sec'}>
-        { data.thumbnail !== 'self' ? <img src={data.thumbnail} alt='my image'/> : null }
+        { data.thumbnail !== 'self' ? <img src={data.thumbnail} alt=''/> : null }
         <p>{data.title}</p>
-        <p>{data.num_comments}</p>
-        <a href={`https://www.reddit.com/${data.permalink}`} target='_blank'>link</a>
+        <p>Commentars amount: {data.num_comments}</p>
+        <a href={`https://www.reddit.com/${data.permalink}`} target='_blank'  rel="noreferrer">link</a>
       </div>
     )
   }

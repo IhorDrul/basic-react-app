@@ -22,12 +22,13 @@ export class App extends React.Component {
     this.setState({
       isLoading: true
     })
-    fetch('https://www.reddit.com/r/reactjs.json?limit=10')
+    fetch('https://www.reddit.com/r/reactjs.json?limit=300')
     .then(response => response.json())
     .then(({data}) => {
       this.setState({
         items: data.children,
-        isLoading: false
+        isLoading: false,
+        minComments: 0
       })
     })
   }
@@ -42,25 +43,47 @@ export class App extends React.Component {
     }
   }
 
+  updateMinComments = (event) => {
+    this.setState({
+      minComments: +event.target.value
+    })
+  }
+
+  getItemsByComments = (items, minComments) => {
+    return items
+      .sort((a, b) => b.data.num_comments - a.data.num_comments)
+      .filter(item => item.data.num_comments >= minComments)
+  }
+
   render() {
-    const {items, isLoading, enableAutoRefresh } = this.state
-    console.log(items.data)
-    const itemsSortByComments = items.sort(
-      (a, b) => b.data.num_comments - a.data.num_comments
-    )
+    const {items, isLoading, enableAutoRefresh, minComments } = this.state
+    const itemsByComments = this.getItemsByComments(items, minComments)
+
     return(
       <div className="App App-logo">
         <h1>Top commended</h1>
-        <button 
-          type='button' 
-          onClick={this.updateAutoRefresh}
-        >
-          {enableAutoRefresh ? 'Stop' : 'Start'} auto-refresh
-        </button>
-        {isLoading 
-          ? <p>...Loading</p> 
-          : (
-          itemsSortByComments.map(item => <Item key={item.data.id} data={item.data}/>)
+        <div>
+          <p>Current filter: {minComments}</p>
+          <button 
+            type='button' 
+            onClick={this.updateAutoRefresh}
+          >
+            {enableAutoRefresh ? 'Stop' : 'Start'} auto-refresh
+          </button>
+        </div>
+        <input 
+          className='range-input'
+          type='range' 
+          value={minComments} 
+          onChange={this.updateMinComments}
+          min={0} 
+          max={300} 
+        />
+        {(isLoading 
+          ) ? ( <p>...Loading</p> 
+          ) : ( itemsByComments.length > 0 
+            ? itemsByComments.map(item => <Item key={item.data.id} data={item.data}/>)
+            : <p>No results</p>
         )}
       </div>
     )
